@@ -62,6 +62,9 @@ def build_parser():
         "--iters", type=int, default=1000, help="Iterations to train for."
     )
     parser.add_argument(
+        "--epochs", type=int, default=None, help="Number of training epochs (overrides iters if provided)."
+    )
+    parser.add_argument(
         "--val-batches",
         type=int,
         default=25,
@@ -182,6 +185,12 @@ if __name__ == "__main__":
 
     print("Loading datasets")
     train_set, valid_set, test_set = load_dataset(args)
+
+    if args.epochs is not None:
+        print(f"Epochs provided ({args.epochs}), overriding iters ({args.iters}) with calculated total iterations based on epochs.")
+        total_size_of_training_set = len(train_set)
+        total_iters_per_epoch = total_size_of_training_set // args.batch_size
+        args.iters = total_iters_per_epoch * args.epochs
 
     # Resume training the given adapters.
     if args.resume_adapter_file is not None:
